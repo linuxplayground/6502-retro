@@ -1,0 +1,119 @@
+Modules list:
+-------------
+02-wozmon.o:
+    CODE              Offs=000000  Size=000061  Align=00001  Fill=0000
+    VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
+build/common/common.lib(zeropage.o):
+    ZEROPAGE          Offs=000000  Size=000019  Align=00001  Fill=0000
+build/common/common.lib(sysram.o):
+    BSS               Offs=000000  Size=00040F  Align=00001  Fill=0000
+build/common/common.lib(acia.o):
+    CODE              Offs=000061  Size=000035  Align=00001  Fill=0000
+build/common/common.lib(console.o):
+    CODE              Offs=000096  Size=000044  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=000006  Align=00001  Fill=0000
+build/common/common.lib(wozmon.o):
+    CODE              Offs=0000DA  Size=000154  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+ZEROPAGE              000000  000018  000019  00001
+BSS                   000800  000C0E  00040F  00001
+CODE                  008000  00822D  00022E  00001
+RODATA                00822E  008233  000006  00001
+VECTORS               00FFFA  00FFFF  000006  00001
+
+
+Exports list by name:
+---------------------
+ACIA_STATUS               007F21 REA    H                         000014 RLZ    
+L                         000013 RLZ    MODE                      000016 RLZ    
+MSGH                      000018 RLZ    MSGL                      000017 RLZ    
+STH                       000012 RLZ    STL                       000011 RLZ    
+XAMH                      000010 RLZ    XAML                      00000F RLZ    
+YSAV                      000015 RLZ    __ACIA_START__            007F20 RLA    
+_acia_init                008061 RLA    _acia_read_byte           00807E RLA    
+_acia_write_byte          008089 RLA    _con_in                   00809B RLA    
+_con_nl                   0080C0 RLA    _con_out                  0080B0 RLA    
+_con_print                0080CC RLA    _wozmon                   0080DA RLA    
+con_buf                   000800 RLA    con_r_idx                 000002 RLZ    
+con_w_idx                 000003 RLZ    str_ptr                   000004 RLZ    
+wozmon_buf                000C00 RLA    
+
+
+Exports list by value:
+----------------------
+con_r_idx                 000002 RLZ    con_w_idx                 000003 RLZ    
+str_ptr                   000004 RLZ    XAML                      00000F RLZ    
+XAMH                      000010 RLZ    STL                       000011 RLZ    
+STH                       000012 RLZ    L                         000013 RLZ    
+H                         000014 RLZ    YSAV                      000015 RLZ    
+MODE                      000016 RLZ    MSGL                      000017 RLZ    
+MSGH                      000018 RLZ    con_buf                   000800 RLA    
+wozmon_buf                000C00 RLA    __ACIA_START__            007F20 RLA    
+ACIA_STATUS               007F21 REA    _acia_init                008061 RLA    
+_acia_read_byte           00807E RLA    _acia_write_byte          008089 RLA    
+_con_in                   00809B RLA    _con_out                  0080B0 RLA    
+_con_nl                   0080C0 RLA    _con_print                0080CC RLA    
+_wozmon                   0080DA RLA    
+
+
+Imports list:
+-------------
+ACIA_STATUS (acia.o):
+    02-wozmon.o               common/include/acia.inc(5)
+H (zeropage.o):
+    wozmon.o                  common/include/zeropage.inc(19)
+L (zeropage.o):
+    wozmon.o                  common/include/zeropage.inc(18)
+MODE (zeropage.o):
+    wozmon.o                  common/include/zeropage.inc(21)
+MSGH (zeropage.o):
+    wozmon.o                  common/include/zeropage.inc(23)
+MSGL (zeropage.o):
+    wozmon.o                  common/include/zeropage.inc(22)
+STH (zeropage.o):
+    wozmon.o                  common/include/zeropage.inc(17)
+STL (zeropage.o):
+    wozmon.o                  common/include/zeropage.inc(16)
+XAMH (zeropage.o):
+    wozmon.o                  common/include/zeropage.inc(15)
+XAML (zeropage.o):
+    wozmon.o                  common/include/zeropage.inc(14)
+YSAV (zeropage.o):
+    wozmon.o                  common/include/zeropage.inc(20)
+__ACIA_START__ ([linker generated]):
+    acia.o                    common/src/acia.s(1)
+_acia_init (acia.o):
+    02-wozmon.o               common/include/acia.inc(1)
+_acia_read_byte (acia.o):
+    02-wozmon.o               common/include/acia.inc(2)
+_acia_write_byte (acia.o):
+    console.o                 common/include/acia.inc(4)
+_con_in (console.o):
+    wozmon.o                  common/include/console.inc(2)
+_con_nl (console.o):
+    02-wozmon.o               common/include/console.inc(5)
+_con_out (console.o):
+    wozmon.o                  common/include/console.inc(3)
+_con_print (console.o):
+    02-wozmon.o               common/include/console.inc(6)
+_wozmon (wozmon.o):
+    02-wozmon.o               common/include/wozmon.inc(1)
+con_buf (sysram.o):
+    console.o                 common/include/sysram.inc(1)
+    02-wozmon.o               common/include/sysram.inc(1)
+con_r_idx (zeropage.o):
+    console.o                 common/include/zeropage.inc(2)
+con_w_idx (zeropage.o):
+    console.o                 common/include/zeropage.inc(3)
+    02-wozmon.o               common/include/zeropage.inc(3)
+str_ptr (zeropage.o):
+    console.o                 common/include/zeropage.inc(4)
+    02-wozmon.o               common/include/zeropage.inc(4)
+wozmon_buf (sysram.o):
+    wozmon.o                  common/include/sysram.inc(3)
+

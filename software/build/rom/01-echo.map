@@ -1,0 +1,81 @@
+Modules list:
+-------------
+01-echo.o:
+    CODE              Offs=000000  Size=000051  Align=00001  Fill=0000
+    VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
+build/common/common.lib(zeropage.o):
+    ZEROPAGE          Offs=000000  Size=000019  Align=00001  Fill=0000
+build/common/common.lib(sysram.o):
+    BSS               Offs=000000  Size=00040F  Align=00001  Fill=0000
+build/common/common.lib(acia.o):
+    CODE              Offs=000051  Size=000035  Align=00001  Fill=0000
+build/common/common.lib(console.o):
+    CODE              Offs=000086  Size=000044  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=000006  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+ZEROPAGE              000000  000018  000019  00001
+BSS                   000800  000C0E  00040F  00001
+CODE                  008000  0080C9  0000CA  00001
+RODATA                0080CA  0080CF  000006  00001
+VECTORS               00FFFA  00FFFF  000006  00001
+
+
+Exports list by name:
+---------------------
+ACIA_STATUS               007F21 REA    __ACIA_START__            007F20 RLA    
+_acia_init                008051 RLA    _acia_read_byte           00806E RLA    
+_acia_write_byte          008079 RLA    _con_in                   00808B RLA    
+_con_nl                   0080B0 RLA    _con_out                  0080A0 RLA    
+_con_print                0080BC RLA    con_buf                   000800 RLA    
+con_r_idx                 000002 RLZ    con_w_idx                 000003 RLZ    
+str_ptr                   000004 RLZ    
+
+
+Exports list by value:
+----------------------
+con_r_idx                 000002 RLZ    con_w_idx                 000003 RLZ    
+str_ptr                   000004 RLZ    con_buf                   000800 RLA    
+__ACIA_START__            007F20 RLA    ACIA_STATUS               007F21 REA    
+_acia_init                008051 RLA    _acia_read_byte           00806E RLA    
+_acia_write_byte          008079 RLA    _con_in                   00808B RLA    
+_con_out                  0080A0 RLA    _con_nl                   0080B0 RLA    
+_con_print                0080BC RLA    
+
+
+Imports list:
+-------------
+ACIA_STATUS (acia.o):
+    01-echo.o                 common/include/acia.inc(5)
+__ACIA_START__ ([linker generated]):
+    acia.o                    common/src/acia.s(1)
+_acia_init (acia.o):
+    01-echo.o                 common/include/acia.inc(1)
+_acia_read_byte (acia.o):
+    01-echo.o                 common/include/acia.inc(2)
+_acia_write_byte (acia.o):
+    console.o                 common/include/acia.inc(4)
+_con_in (console.o):
+    01-echo.o                 common/include/console.inc(2)
+_con_nl (console.o):
+    01-echo.o                 common/include/console.inc(5)
+_con_out (console.o):
+    01-echo.o                 common/include/console.inc(3)
+_con_print (console.o):
+    01-echo.o                 common/include/console.inc(6)
+con_buf (sysram.o):
+    console.o                 common/include/sysram.inc(1)
+    01-echo.o                 common/include/sysram.inc(1)
+con_r_idx (zeropage.o):
+    console.o                 common/include/zeropage.inc(2)
+con_w_idx (zeropage.o):
+    console.o                 common/include/zeropage.inc(3)
+    01-echo.o                 common/include/zeropage.inc(3)
+str_ptr (zeropage.o):
+    console.o                 common/include/zeropage.inc(4)
+    01-echo.o                 common/include/zeropage.inc(4)
+

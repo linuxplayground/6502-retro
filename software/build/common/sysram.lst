@@ -1,0 +1,20 @@
+ca65 V2.18 - Ubuntu 2.18-1
+Main file   : common/src/sysram.s
+Current file: common/src/sysram.s
+
+000000r 1                       .export con_buf
+000000r 1                       .export Rbuff
+000000r 1                       .export wozmon_buf
+000000r 1               
+000000r 1               
+000000r 1                       .segment "BSS"
+000000r 1  xx xx xx xx  con_buf:        .res $0100      ; console
+000004r 1  xx xx xx xx  
+000008r 1  xx xx xx xx  
+000100r 1  xx xx xx xx  Rbuff:          .res $0300      ; xmodem
+000104r 1  xx xx xx xx  
+000108r 1  xx xx xx xx  
+000400r 1  xx xx xx xx  wozmon_buf:     .res $000F      ; wozmon input buffer
+000404r 1  xx xx xx xx  
+000408r 1  xx xx xx xx  
+000400r 1               

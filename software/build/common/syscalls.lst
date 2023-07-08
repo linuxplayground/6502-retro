@@ -1,0 +1,59 @@
+ca65 V2.18 - Ubuntu 2.18-1
+Main file   : common/src/syscalls.s
+Current file: common/src/syscalls.s
+
+000000r 1                       .include "console.inc"
+000000r 2                       .import _con_init
+000000r 2                       .import _con_in
+000000r 2                       .import _con_out
+000000r 2                       .import _con_prompt
+000000r 2                       .import _con_nl
+000000r 2                       .import _con_print
+000000r 2               
+000000r 1                       .include "wozmon.inc"
+000000r 2                       .import _wozmon
+000000r 2                       .import _prbyte
+000000r 2               
+000000r 1                       .include "sysram.inc"
+000000r 2                       .import con_buf
+000000r 2                       .import Rbuff
+000000r 2                       .import wozmon_buf
+000000r 2               
+000000r 1                       .include "utils.inc"
+000000r 2                       .import _delay_ms
+000000r 2                       .import _delay_sec
+000000r 2               
+000000r 1               
+000000r 1                       ; console
+000000r 1                       .export _syscall__con_in
+000000r 1                       .export _syscall__con_out
+000000r 1                       .export _syscall__con_print
+000000r 1                       .export _syscall__con_nl
+000000r 1                       .export _syscall__con_prompt
+000000r 1                       ; wozmon
+000000r 1                       .export _syscall__prbyte
+000000r 1                       ; memory
+000000r 1                       .export _system_con_buf
+000000r 1                       .export _system_Rbuff
+000000r 1                       .export _system_wozmon_buf
+000000r 1                       ; utils
+000000r 1                       .export _system__delay_ms
+000000r 1                       .export _system__delay_sec
+000000r 1               
+000000r 1                       .segment "SYSCALLS"
+000000r 1               ; console
+000000r 1  rr rr        _syscall__con_in:                       .word _con_in
+000002r 1  rr rr        _syscall__con_out:                      .word _con_out
+000004r 1  rr rr        _syscall__con_print:                    .word _con_print
+000006r 1  rr rr        _syscall__con_nl:                       .word _con_nl
+000008r 1  rr rr        _syscall__con_prompt:                   .word _con_prompt
+00000Ar 1               ; wozmon
+00000Ar 1  rr rr        _syscall__prbyte:                       .word _prbyte
+00000Cr 1               ; memory
+00000Cr 1  rr rr        _system_con_buf:                        .word con_buf
+00000Er 1  rr rr        _system_Rbuff:                          .word Rbuff
+000010r 1  rr rr        _system_wozmon_buf:                     .word wozmon_buf
+000012r 1               ; utils
+000012r 1  rr rr        _system__delay_ms:                      .word _delay_ms
+000014r 1  rr rr        _system__delay_sec:                     .word _delay_sec
+000014r 1               

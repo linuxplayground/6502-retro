@@ -1,0 +1,115 @@
+ca65 V2.18 - Ubuntu 2.18-1
+Main file   : rom/01-echo.s
+Current file: rom/01-echo.s
+
+000000r 1               ; simple rom file to demonstrate working ACIA, RAM and ROM.
+000000r 1               ; When the reset button is pressed, a welcome message will appear.
+000000r 1               ; every keystroke entered will be echoed back to you.
+000000r 1               
+000000r 1                   .include "acia.inc"
+000000r 2                       .import _acia_init
+000000r 2                       .import _acia_read_byte
+000000r 2                       .import _acia_read_byte_nw
+000000r 2                       .import _acia_write_byte
+000000r 2                       .import ACIA_STATUS
+000000r 2                       .import ACIA_DATA
+000000r 2               
+000000r 1                   .include "console.inc"
+000000r 2                       .import _con_init
+000000r 2                       .import _con_in
+000000r 2                       .import _con_out
+000000r 2                       .import _con_prompt
+000000r 2                       .import _con_nl
+000000r 2                       .import _con_print
+000000r 2               
+000000r 1                   .include "console_macros.inc"
+000000r 2               .macro mac_con_print addr
+000000r 2                       lda #<addr
+000000r 2                       sta str_ptr
+000000r 2                       lda #>addr
+000000r 2                       sta str_ptr + 1
+000000r 2                       jsr _con_print
+000000r 2               .endmacro
+000000r 2               
+000000r 1                   .include "sysram.inc"
+000000r 2                       .import con_buf
+000000r 2                       .import Rbuff
+000000r 2                       .import wozmon_buf
+000000r 2               
+000000r 1                   .include "zeropage.inc"
+000000r 2                       .globalzp usr_irq
+000000r 2                       .globalzp con_r_idx
+000000r 2                       .globalzp con_w_idx
+000000r 2                       .globalzp str_ptr
+000000r 2                       .globalzp tmp1
+000000r 2                       .globalzp crc
+000000r 2                       .globalzp crch
+000000r 2                       .globalzp ptr
+000000r 2                       .globalzp ptrh
+000000r 2                       .globalzp blkno
+000000r 2                       .globalzp retry
+000000r 2                       .globalzp retry2
+000000r 2                       .globalzp bflag
+000000r 2                       .globalzp XAML
+000000r 2                       .globalzp XAMH
+000000r 2                       .globalzp STL
+000000r 2                       .globalzp STH
+000000r 2                       .globalzp L
+000000r 2                       .globalzp H
+000000r 2                       .globalzp YSAV
+000000r 2                       .globalzp MODE
+000000r 2                       .globalzp MSGL
+000000r 2                       .globalzp MSGH
+000000r 2               
+000000r 1               
+000000r 1                   .code
+000000r 1               cold_boot:
+000000r 1  A2 FF            ldx #$ff
+000002r 1  9A               txs
+000003r 1               
+000003r 1  20 rr rr         jsr _acia_init
+000006r 1               
+000006r 1  A9 rr 85 rr      mac_con_print acia_message
+00000Ar 1  A9 rr 85 rr  
+00000Er 1  20 rr rr     
+000011r 1  20 rr rr         jsr _con_nl
+000014r 1               
+000014r 1               ; just echo stuff.
+000014r 1               loop:
+000014r 1  20 rr rr         jsr _con_in
+000017r 1  90 FB            bcc loop
+000019r 1  20 rr rr         jsr _con_out
+00001Cr 1  4C rr rr         jmp loop
+00001Fr 1               
+00001Fr 1  57 65 6C 63  acia_message: .asciiz "Welcome to the 6502-Retro!"
+000023r 1  6F 6D 65 20  
+000027r 1  74 6F 20 74  
+00003Ar 1               
+00003Ar 1               
+00003Ar 1               nmi:
+00003Ar 1  40                   rti
+00003Br 1               irq:
+00003Br 1  48                   pha
+00003Cr 1  DA                   phx
+00003Dr 1  5A                   phy
+00003Er 1               
+00003Er 1  2C rr rr             bit ACIA_STATUS
+000041r 1  10 0A                bpl @exit_irq
+000043r 1  20 rr rr             jsr _acia_read_byte
+000046r 1  A6 rr                ldx con_w_idx
+000048r 1  9D rr rr             sta con_buf,x
+00004Br 1  E6 rr                inc con_w_idx
+00004Dr 1               
+00004Dr 1               @exit_irq:
+00004Dr 1  7A                   ply
+00004Er 1  FA                   plx
+00004Fr 1  68                   pla
+000050r 1               
+000050r 1  40                   rti
+000051r 1               
+000051r 1                   .segment "VECTORS"
+000000r 1               
+000000r 1  rr rr            .word nmi
+000002r 1  rr rr            .word cold_boot
+000004r 1  rr rr            .word irq
+000004r 1               
