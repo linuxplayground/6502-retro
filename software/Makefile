@@ -35,7 +35,8 @@ ROM_BUILD=$(BUILD)/rom
 ROM_SOURCES=$(ROM_ROOT)
 
 ROM_SOURCE_FILES=	01-echo.s \
-			02-wozmon.s
+			02-wozmon.s \
+			03-xmodem.s
 
 ROM_OBJECTS=$(ROM_SOURCE_FILES:%.s=$(ROM_BUILD)/%.o)
 ROM_BINARIES=$(ROM_SOURCE_FILES:%.s=$(ROM_BUILD)/%.bin)

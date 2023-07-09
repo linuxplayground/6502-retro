@@ -35,14 +35,20 @@ irq:
         pha
         phx
         phy
-        
         bit ACIA_STATUS
-        bpl @exit_irq
+        bpl @user_irq
         jsr _acia_read_byte
         ldx con_w_idx
         sta con_buf,x
         inc con_w_idx
-
+        bra @exit_irq
+@user_irq:
+        lda $00
+        bne @jump_to_user_irq
+        lda $01
+        beq @exit_irq
+@jump_to_user_irq:
+        jmp ($00)
 @exit_irq:
         ply
         plx

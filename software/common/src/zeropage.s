@@ -46,3 +46,5 @@ YSAV:                   .res 1     ; wozmon
 MODE:                   .res 1     ; wozmon
 MSGL:                   .res 1     ; wozmon
 MSGH:                   .res 1     ; wozmon
+JP_NMI_VEC:             .res 2     ; NMI Interrupt jump
+JP_IRQ_VEC:             .res 12    ; 6 addresses reserved

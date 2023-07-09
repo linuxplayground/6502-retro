@@ -33,6 +33,7 @@ ACIA_DTR_HIGH                = %00000000
 ACIA_DTR_LOW                 = %00000001
 
         .code
+; initialise the ACIA
 _acia_init:
         lda #$00
         sta ACIA_STATUS
@@ -43,6 +44,10 @@ _acia_init:
         sta ACIA_CONTROL
         rts
 
+; Read a byte from the ACIA device - do not block.
+; Carry is set if a byte was received.
+; Carry clear if no byte received.
+; Byte received in A
 _acia_read_byte_nw:
         clc
         lda    ACIA_STATUS
@@ -53,6 +58,8 @@ _acia_read_byte_nw:
 @done:
         rts
 
+; Read a byte from the ACIA - block
+; Byte received in A
 _acia_read_byte:
 @wait_rxd_full:
         lda ACIA_STATUS
@@ -61,6 +68,9 @@ _acia_read_byte:
         lda ACIA_DATA
         rts
 
+; Write a byte to the ACIA.  Note - this only works with the Rockwell type
+; ACIA.  If using the WDC65C51 device, you will need to insert a short delay
+; rather than polling the ACIA_STATUS register.
 _acia_write_byte:
         pha                     ; save char
 @wait_txd_empty:
