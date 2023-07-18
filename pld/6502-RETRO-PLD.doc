@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Sat Jul 08 11:47:12 2023
+Created         Sat Jul 15 13:03:52 2023
 Name            6502-retro-pld 
 Partno          00 
 Revision        01 
@@ -29,7 +29,7 @@ IO2 =>
     A7 & A8 & A9 & A10 & A11 & A12 & A13 & A14 & !A15
 
 !IO_CS1 =>
-    !A7 & A8 & A9 & A10 & A11 & A12 & A13 & A14 & !A15
+    !A7 & A8 & A9 & A10 & A11 & A12 & A13 & A14 & !A15 & CLK
 
 !IO_CS2 =>
     A7 & A8 & A9 & A10 & A11 & A12 & A13 & A14 & !A15
@@ -169,7 +169,7 @@ Pin #22  05810 Mode  x-
  00880 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #21  05812 Mode  x- 
  00924 -------------------------------------------- 
- 00968 ---------x--x---x---x---x---x---x---x----x-- 
+ 00968 x--------x--x---x---x---x---x---x---x----x-- 
  01012 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  01056 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  01100 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 

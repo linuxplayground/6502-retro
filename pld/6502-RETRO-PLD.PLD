@@ -33,5 +33,5 @@ ROM       = Address:[8000..FFFF];
 !OE       = CLK & RW;
 !RAM_CS   = RAM;
 !ROM_CS   = ROM & RW;
-!IO_CS1   = IO1;
+!IO_CS1   = IO1 & CLK;
 !IO_CS2   = IO2;

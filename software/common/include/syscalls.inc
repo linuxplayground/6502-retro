@@ -23,20 +23,8 @@
         .forceimport _syscall__vdp_write_reg
         .forceimport _syscall__vdp_enable_interrupts
         .forceimport _syscall__vdp_disable_interrupts
-
+        .forceimport _syscall__vdp_flush
+        .forceimport _syscall__vdp_wait
         ; audio
         .forceimport _syscall__psg_init
         .forceimport _syscall__play_vgm_data
-
-        ; memory
-        .forceimport _system_con_buf
-        .forceimport _system_Rbuff
-        .forceimport _system_screen
-        .forceimport _system_wozmon_buf
-        .forceimport _system_vdp_x
-        .forceimport _system_vdp_y
-        .forceimport _system_linebuf
-        .forceimport _system_scroll_read
-        .forceimport _system_scroll_write
-        .forceimport _system_vdp_reg_x
-        .forceimport _system_vdp_reg_y

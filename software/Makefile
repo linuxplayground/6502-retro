@@ -7,23 +7,26 @@ AR65_FLAGS= r
 MKDIR_BINARY=mkdir
 MKDIR_FLAGS=-v -p
 
-ROM_CONFIG= 6502-retro-rom.cfg
-LOAD_CONFIG= 6502-retro-load.cfg
+FIRMWARE= firmware.cfg
 
 BUILD= build
 
 # COMMON STUFF
 COMMON_ROOT= common
-COMMON_SOURCES= $(COMMON_ROOT)/src
+COMMON_SOURCES= $(COMMON_ROOT)/source
 COMMON_INCLUDES= $(COMMON_ROOT)/include
 COMMON_BUILD= $(BUILD)/common
-COMMON_SOURCE_FILES=    zeropage.s \
+COMMON_SOURCE_FILES= zeropage.s \
 			sysram.s \
 			syscalls.s \
 			acia.s \
+			ehbasic.s \
+			audiolib.s \
+			kbd.s \
 			console.s \
 			utils.s \
 			via.s \
+			vdp.s \
 			wozmon.s \
 			xmodem.s
 COMMON_OBJECTS=$(COMMON_SOURCE_FILES:%.s=$(COMMON_BUILD)/%.o)
@@ -33,11 +36,8 @@ COMMON_LIB=$(COMMON_BUILD)/common.lib
 ROM_ROOT=rom
 ROM_BUILD=$(BUILD)/rom
 ROM_SOURCES=$(ROM_ROOT)
-
-ROM_SOURCE_FILES=	01-echo.s \
-			02-wozmon.s \
-			03-xmodem.s
-
+ROM_SOURCE_FILES=be6502_rom.s \
+	be6502_ehbasic.s
 ROM_OBJECTS=$(ROM_SOURCE_FILES:%.s=$(ROM_BUILD)/%.o)
 ROM_BINARIES=$(ROM_SOURCE_FILES:%.s=$(ROM_BUILD)/%.bin)
 
@@ -45,21 +45,25 @@ ROM_BINARIES=$(ROM_SOURCE_FILES:%.s=$(ROM_BUILD)/%.bin)
 LOAD_ROOT=load
 LOAD_BUILD=$(BUILD)/load
 
-LOAD_COMMON_SOURCE_FILES=       syscalls.s \
-				loadlib.s
+LOAD_COMMON_SOURCE_FILES=	syscalls.s \
+				loadlib.s \
+				sysram.s
 LOAD_COMMON_OBJECTS=$(LOAD_COMMON_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.load.o)
 
 LOAD_COMMON_LIB=$(LOAD_BUILD)/load.lib
 
 LOAD_SOURCES=$(LOAD_ROOT)
-LOAD_SOURCE_FILES=
-
+LOAD_SOURCE_FILES= 01_xmodem_test.s \
+			02_vdp_lib_dev.s \
+			03_snake.s \
+			05_audio.s \
+			06_tetris.s \
+			07_framebuffer.s
 LOAD_OBJECTS=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.o)
 LOAD_RAW=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.raw)
 LOAD_BINARIES=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.bin)
 
 SYSTEM_MEMORY_MAP_OBJECT=$(COMMON_BUILD)/zeropage.o
-
 
 # Don't edit beyond this line.
 
@@ -87,7 +91,7 @@ $(ROM_BUILD)/%.o: $(ROM_SOURCES)/%.s
 
 # Link the roms
 $(ROM_BUILD)/%.bin: $(SYSTEM_MEMORY_MAP_OBJECT) $(ROM_OBJECTS) $(COMMON_LIB)
-	$(LD65_BINARY) $(LD65_FLAGS) -C $(ROM_CONFIG) -m $(@:.bin=.map)  -o $@ $(@:.bin=.o) $(COMMON_LIB)
+	$(LD65_BINARY) $(LD65_FLAGS) -C $(FIRMWARE) -m $(@:.bin=.map)  -o $@ $(@:.bin=.o) $(COMMON_LIB)
 
 # Build the common load library
 $(LOAD_BUILD)/%.load.o: $(COMMON_SOURCES)/%.s
@@ -105,7 +109,7 @@ $(LOAD_BUILD)/%.o: $(LOAD_SOURCES)/%.s
 
 # Link the loadables
 $(LOAD_BUILD)/%.raw: $(SYSTEM_MEMORY_MAP_OBJECT) $(LOAD_OBJECTS) $(LOAD_COMMON_LIB)
-	$(LD65_BINARY) $(LD65_FLAGS) -C $(LOAD_CONFIG) -m $(@:.raw=.map)  -o $@ $(@:.raw=.o) $(SYSTEM_MEMORY_MAP_OBJECT) $(LOAD_COMMON_LIB)
+	$(LD65_BINARY) $(LD65_FLAGS) -C firmware.load.cfg -m $(@:.raw=.map)  -o $@ $(@:.raw=.o) $(SYSTEM_MEMORY_MAP_OBJECT) $(LOAD_COMMON_LIB)
 
 # prune the loadables
 $(LOAD_BUILD)/%.bin: $(LOAD_BUILD)/%.raw
