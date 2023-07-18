@@ -36,8 +36,7 @@ COMMON_LIB=$(COMMON_BUILD)/common.lib
 ROM_ROOT=rom
 ROM_BUILD=$(BUILD)/rom
 ROM_SOURCES=$(ROM_ROOT)
-ROM_SOURCE_FILES=be6502_rom.s \
-	be6502_ehbasic.s
+ROM_SOURCE_FILES=6502-retro.s
 ROM_OBJECTS=$(ROM_SOURCE_FILES:%.s=$(ROM_BUILD)/%.o)
 ROM_BINARIES=$(ROM_SOURCE_FILES:%.s=$(ROM_BUILD)/%.bin)
 
@@ -53,12 +52,7 @@ LOAD_COMMON_OBJECTS=$(LOAD_COMMON_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.load.o)
 LOAD_COMMON_LIB=$(LOAD_BUILD)/load.lib
 
 LOAD_SOURCES=$(LOAD_ROOT)
-LOAD_SOURCE_FILES= 01_xmodem_test.s \
-			02_vdp_lib_dev.s \
-			03_snake.s \
-			05_audio.s \
-			06_tetris.s \
-			07_framebuffer.s
+LOAD_SOURCE_FILES= 	01_framebuffer.s
 LOAD_OBJECTS=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.o)
 LOAD_RAW=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.raw)
 LOAD_BINARIES=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.bin)

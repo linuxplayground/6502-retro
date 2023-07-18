@@ -1,4 +1,5 @@
-; Example loadable that demonstrates how to interface with the tms9918a
+; Example loadable that demonstrates how to interface with the F18A card and
+; how to run a frambebuffered application.
 
         .include "zeropage.inc"
         .include "console.inc"
@@ -10,11 +11,6 @@
 
 start_char              = $F0
         .code
-; first thing to do is to initialise the VDP interrupt routine.
-; as this is the only interrupt routine we need to deal with it should be
-; pretty easy.
-
-
 
 main:
         vdp_con_g1_mode
