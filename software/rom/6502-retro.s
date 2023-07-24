@@ -71,11 +71,16 @@ wait_for_input:
         beq run_help
         cmp #'b'
         beq run_basic
+        cmp #'w'
+        beq run_warm_boot
         cmp #$0a                        ; CR
         beq new_line
         jsr _con_out
         jmp prompt
         jmp wait_for_input
+
+run_warm_boot:
+        jmp cold_boot
 
 run_xmodem:
         jsr _con_nl
@@ -149,7 +154,8 @@ irq:
 
         .rodata
 str_help:
-load_message: .byte "Press 'x' to start xmodem receive ...", $0a, $0d
+load_message: .byte "Press 'w' to warm boot ...", $0a, $0d
+              .byte "Press 'x' to start xmodem receive ...", $0a, $0d
               .byte "Press 'r' to run your program ...", $0a, $0d
               .byte "Press 'b' to run basic ...", $0a, $0d
               .byte "Press 'm' to start Wozmon ...", $0a, $0d, $00

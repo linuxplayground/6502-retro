@@ -1,4 +1,3 @@
-        .globalzp usr_irq
         .globalzp con_r_idx
         .globalzp con_w_idx
         .globalzp kbd_flags
@@ -24,12 +23,7 @@
         .globalzp MSGL
         .globalzp MSGH
         .globalzp vdp_ptr
-        .globalzp vdp_cur
-        .globalzp vdp_con_mode
-        .globalzp vdp_con_width
-        .globalzp vdp_vsync_ticks
-        .globalzp vgm_data
-        .globalzp vgm_temp
+        .globalzp scr_ptr
 
 ; ehbasic
         .globalzp LAB_WARM

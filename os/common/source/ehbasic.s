@@ -262,12 +262,12 @@ VEC_EXIT          = VEC_SV+2        ; exit vector
 ; program RAM pages!
 
 ;Ibuffs            = IRQ_vec+$14
-Ibuffs            = $0700     ; SYSTEM SPECIFIC VALUE!
+Ibuffs            = $0300     ; SYSTEM SPECIFIC VALUE!
                               ; start of input buffer after IRQ/NMI code
 Ibuffe            = Ibuffs+$47; end of input buffer
 
 Ram_base          = $1000     ; start of user RAM (set as needed, should be page aligned)  : SYSTEM SPECIFIC VALUE!
-Ram_top           = $6F00     ; end of user RAM+1 (set as needed, should be page aligned)  : SYSTEM SPECIFIC VALUE!
+Ram_top           = $7F00     ; end of user RAM+1 (set as needed, should be page aligned)  : SYSTEM SPECIFIC VALUE!
 
 Stack_floor       = 16        ; bytes left free on stack for background interrupts
 

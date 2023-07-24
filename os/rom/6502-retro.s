@@ -7,33 +7,11 @@
         .include "acia.inc"
         .include "kbd.inc"
         .include "via.inc"
+        .include "vdp.inc"
         .include "xmodem.inc"
         .include "wozmon.inc"
 
         .export menu
-
-
-        .import __ACIA_START__
-ACIA_COMMAND = __ACIA_START__ + $02
-
-; ACIA command register bit values
-
-ACIA_PARITY_ODD              = %00000000
-ACIA_PARITY_EVEN             = %01000000
-ACIA_PARITY_MARK             = %10000000
-ACIA_PARITY_SPACE            = %11000000
-ACIA_PARITY_DISABLE          = %00000000
-ACIA_PARITY_ENABLE           = %00100000
-ACIA_ECHO_DISABLE            = %00000000
-ACIA_ECHO_ENABLE             = %00010000
-ACIA_TX_INT_DISABLE_RTS_HIGH = %00000000
-ACIA_TX_INT_ENABLE_RTS_LOW   = %00000100
-ACIA_TX_INT_DISABLE_RTS_LOW  = %00001000
-ACIA_TX_INT_DISABLE_BREAK    = %00001100
-ACIA_RX_INT_ENABLE           = %00000000
-ACIA_RX_INT_DISABLE          = %00000010
-ACIA_DTR_HIGH                = %00000000
-ACIA_DTR_LOW                 = %00000001
 
         .code
 cold_boot:
@@ -44,8 +22,6 @@ cold_boot:
         jsr _con_init
         jsr _acia_init
         jsr _kbd_init
-        stz usr_irq
-        stz usr_irq + 1
         cli
 menu:
         mac_con_print str_help
@@ -54,7 +30,7 @@ prompt:
 wait_for_input:
         jsr _con_in
         bcc wait_for_input
-
+inkey:
         cmp #'x'
         beq run_xmodem
         cmp #'m'
@@ -111,11 +87,19 @@ irq:
         pha
         phx
         phy
+@vdp_irq:
+        bit VDP_REG
+        bpl @kbd_irq
+        lda VDP_REG
+        sta vdp_status
+        lda #$80
+        sta vdp_sync
+        ; bra @exit_irq
 @kbd_irq:
         bit VIA_IFR
         bpl @acia_irq
         jsr _kbd_isr
-        bra @exit_irq
+        ; bra @exit_irq
 @acia_irq:
         bit ACIA_STATUS
         bpl @exit_irq
@@ -123,7 +107,6 @@ irq:
         ldx con_w_idx
         sta con_buf,x
         inc con_w_idx
-        bra @exit_irq
 @exit_irq:
         ply
         plx
@@ -139,10 +122,10 @@ irq:
 
         .rodata
 str_help:
-load_message: .byte "Press 'w' to warm boot ...", $0a, $0d
+load_message: .byte "6502-Retro!", $0a, $0d
+              .byte $0a, $0d
+              .byte "Press 'w' to warm boot ...", $0a, $0d
               .byte "Press 'x' to start xmodem receive ...", $0a, $0d
               .byte "Press 'r' to run your program ...", $0a, $0d
               .byte "Press 'b' to run basic ...", $0a, $0d
               .byte "Press 'm' to start Wozmon ...", $0a, $0d, $00
-        .byte $00
-

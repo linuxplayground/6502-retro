@@ -38,7 +38,7 @@ _acia_init:
         sta ACIA_STATUS
         lda #(ACIA_PARITY_DISABLE | ACIA_ECHO_DISABLE | ACIA_TX_INT_DISABLE_RTS_LOW | ACIA_RX_INT_ENABLE | ACIA_DTR_LOW)
         sta ACIA_COMMAND
-        lda #$1f
+        lda #$10
         sta ACIA_CONTROL
         rts
 

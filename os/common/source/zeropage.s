@@ -1,4 +1,3 @@
-        .exportzp usr_irq
         .exportzp con_r_idx
         .exportzp con_w_idx
         .exportzp kbd_flags
@@ -23,6 +22,8 @@
         .exportzp MODE
         .exportzp MSGL
         .exportzp MSGH
+        .exportzp vdp_ptr
+        .exportzp scr_ptr
 ; ehbasic
         .exportzp LAB_WARM
         .exportzp Wrmjpl
@@ -141,7 +142,6 @@
 ; ehbasic end
 
         .zeropage        
-usr_irq:                .res 2, 0  ; the jump vector for user IRQ routines initialized to 0x0000
 con_r_idx:              .res 1, 0  ; console read index initialized to 0
 con_w_idx:              .res 1, 0  ; console write index initialized to 0
 kbd_flags:              .res 1, 0  ; keyboard flags for tracking state of shift keys
@@ -166,6 +166,8 @@ YSAV:                   .res 1     ; wozmon
 MODE:                   .res 1     ; wozmon
 MSGL:                   .res 1     ; wozmon
 MSGH:                   .res 1     ; wozmon
+vdp_ptr:                .res 2     ; vdp
+scr_ptr:                .res 2     ; vdp
 
 ; ehbasic
 ; the following locations are bulk initialized from StrTab at LAB_GMEM

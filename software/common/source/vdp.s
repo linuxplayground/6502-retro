@@ -173,10 +173,6 @@ _vdp_xy_to_ptr:
         lda #>VDP_NAME_TABLE
         sta vdp_ptr + 1
         
-        ; this can be better. rotate and save, perhaps
-        lda vdp_con_mode
-        beq @text_mode
-        ; applies to g1 and g2 mode
         tya
         div8
         clc
@@ -186,22 +182,16 @@ _vdp_xy_to_ptr:
         and #$07
         mul32
         sta vdp_ptr
-        txa
-        ora vdp_ptr
-        sta vdp_ptr
-        bra @return
-@text_mode:
-        cpy #0
-        beq @add_x
-        clc
-        lda vdp_ptr
-        adc #VDP_TEXT_MODE_WIDTH
-        sta vdp_ptr
-        bcc @dec_y
-        inc vdp_ptr + 1
-@dec_y:
-        dey
-        bne @text_mode
+        lda vdp_con_mode
+        bne @add_x
+        tya
+        mul8                    ; safe because the largest Y is 24 and 24x8 is
+        clc                     ; less than max 8bit int.
+        adc     vdp_ptr
+        sta     vdp_ptr
+        lda     #0
+        adc     vdp_ptr+1
+        sta     vdp_ptr+1
 @add_x:
         clc
         txa
