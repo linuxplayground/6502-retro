@@ -6,7 +6,7 @@
 
   (title_block
     (title "6502-Retro!")
-    (date "2023-07-11")
+    (date "2023-07-18")
     (rev "2.0")
     (company "David Latham")
     (comment 1 "CPU + UART Base Board")
@@ -6970,7 +6970,7 @@
     (in_bom yes) (on_board yes)
     (uuid 333a7369-36f7-4d4f-9da3-e58a824b2297)
     (property "Reference" "R10" (id 0) (at 247.3295 54.7607 90))
-    (property "Value" "3.9K" (id 1) (at 248.92 52.832 90))
+    (property "Value" "4.7" (id 1) (at 248.92 52.832 90))
     (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" (id 2) (at 248.92 51.054 90)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -8442,7 +8442,7 @@
       (reference "R9") (unit 1) (value "3.9K") (footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
     )
     (path "/333a7369-36f7-4d4f-9da3-e58a824b2297"
-      (reference "R10") (unit 1) (value "3.9K") (footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
+      (reference "R10") (unit 1) (value "4.7") (footprint "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal")
     )
     (path "/0fd938dd-c70d-40ff-8424-76ff1baf22b5"
       (reference "SW1") (unit 1) (value "RESET") (footprint "Button_Switch_THT:SW_PUSH_6mm_H5mm")
