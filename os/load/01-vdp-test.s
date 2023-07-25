@@ -31,8 +31,61 @@ key_input:
         jsr     _con_in
         bcc     key_input
 
-fill:
-        
+        jsr     _vdp_clear_screen_buf
+        jsr     _vdp_wait
+        jsr     _vdp_flush
+
+        ldx     #0
+        ldy     #0
+        jsr     _vdp_xy_to_screen_buf_ptr
+
+        lda     #$20
+        sta     start
+loop1:
+        lda     start
+        sta     current
+        lda     #$C0
+        sta     count
+        lda     #$04
+        sta     count + 1
+loop2:
+        lda     current
+        sta     (scr_ptr)
+
+        inc     current
+        lda     current
+        cmp     #$80
+        bne     :+
+        lda     #$20
+        sta     current
+:
+        inc     scr_ptr
+        bne     :+
+        inc     scr_ptr + 1
+:
+        dec     count
+        bne     loop2
+        dec     count + 1
+        bne     loop2
+
+        inc     start
+        lda     start
+        cmp     #$80
+        bne     :+
+        lda     #$20
+        sta     start
+:
+        stz     vdp_sync
+        jsr     _vdp_wait
+        jsr     _vdp_flush
+
+        ldx     #0
+        ldy     #0
+        jsr     _vdp_xy_to_screen_buf_ptr
+
+        jsr     _con_in
+        bcc     loop1
+
         rts
 
 vdp_print:
@@ -45,6 +98,10 @@ vdp_print:
         jmp     :-
 :
         rts
+
+start:  .byte 0
+current:.byte 0
+count:  .word 0
 
 banner:
         .byte "Test application showing how to write to"

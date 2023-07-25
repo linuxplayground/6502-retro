@@ -9,8 +9,8 @@
         .export _kbd_isr
 
 ; keyboard flags and bits
-KBDON        = %00001000
-KBDOFF       = %11110111
+KBDON        = %00000010
+KBDOFF       = %11111101
 
 KBD_R_FLAG   = %00000001
 KBD_S_FLAG   = %00000010
