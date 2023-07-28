@@ -53,7 +53,8 @@ LOAD_COMMON_LIB=$(LOAD_BUILD)/load.lib
 
 LOAD_SOURCES=$(LOAD_ROOT)
 LOAD_SOURCE_FILES=		01-vdp-test.s \
-				02-vdp-ball.s
+				02-vdp-ball.s \
+				03-snake.s
 LOAD_OBJECTS=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.o)
 LOAD_RAW=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.raw)
 LOAD_BINARIES=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.bin)

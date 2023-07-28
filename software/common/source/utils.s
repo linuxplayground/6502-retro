@@ -34,7 +34,6 @@ return:
       lda tmp1
       rts
 
-
 _delay_sec:
       lda #250
       jsr _delay_ms
