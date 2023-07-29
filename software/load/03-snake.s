@@ -16,17 +16,38 @@
 LVDP_RAM                        = __TMS_START__ + 0
 LVDP_REG                        = __TMS_START__ + 1
 
+snake                           = $2000
+
 vdp_patternTable                = $0000
 vdp_nameTable                   = $3800
 vdp_spriteAttributeTable        = $3b00
 vdp_colorTable                  = $2000
 vdp_spritePatternTable          = $1800
 
-default_speed                   = 12
+default_speed                   = 4
 default_length                  = 6
 
-head_ptr                        = $E0
-tail_ptr                        = $E2
+head_ptr                        = $E0   ; Zeropage addresses for pointers
+tail_ptr                        = $E2   ;
+
+head_up                         = $01   ; Ascii chars for snake head
+head_dn                         = $02   ; see res/chunky.asm
+head_lt                         = $03
+head_rt                         = $04
+
+; ------------------------------------------------------------------------------
+; MACROS
+; ------------------------------------------------------------------------------
+.macro printxy  addr,px,py
+        lda     #<addr
+        sta     str_ptr
+        lda     #>addr
+        sta     str_ptr+1
+        ldx     #px
+        ldy     #py
+        jsr     _vdp_xy_to_screen_buf_ptr
+        jsr     vdp_print
+.endmacro
 
 ; ------------------------------------------------------------------------------
 ; CODE
@@ -38,17 +59,25 @@ main:
         jsr     vdp_init_g2             ; switch to 32x24 graphics mode
         jsr     vdp_init_patterns       ; set up the font
         jsr     vdp_init_colours        ; set characater colours
-        lda     #1
-        sta     vdp_con_mode
-        lda     #32
-        sta     vdp_con_width
 
+
+start_menu:
+        printxy start_menu_1,3,5
+        printxy start_menu_2,3,7
+        printxy start_menu_3,3,9
+        jsr     _vdp_wait
+        jsr     vdp_flush
+:
+        jsr     _con_in
+        bcc     :-
+new_game:
+        jsr     _vdp_clear_screen_buf
+        
         ldx     #15
         stx     head_x
         ldy     #12
         sty     head_y
         jsr     _vdp_xy_to_screen_buf_ptr
-
         lda     #<snake
         sta     head_ptr
         sta     tail_ptr
@@ -64,7 +93,14 @@ main:
 
         lda     #1
         sta     dir
+        lda     #head_rt
+        sta     head_char
 
+        lda     #1
+        sta     vdp_con_mode
+        lda     #32
+        sta     vdp_con_width
+game_loop:
 do_tick:
         jsr     _vdp_wait
         inc     tick
@@ -124,6 +160,7 @@ update:
         ldx     head_x
         dex
         stx     head_x
+        lda     #head_lt
         jmp     check_collision
 :
         cmp     #1
@@ -131,6 +168,7 @@ update:
         ldx     head_x
         inx
         stx     head_x
+        lda     #head_rt
         jmp     check_collision
 :
         cmp     #2
@@ -138,6 +176,7 @@ update:
         ldy     head_y
         dey
         sty     head_y
+        lda     #head_up
         jmp     check_collision
 :
         cmp     #3
@@ -145,8 +184,10 @@ update:
         ldy     head_y
         iny
         sty     head_y
+        lda     #head_dn
         ; fall through
 check_collision:
+        sta     head_char               ; save the head character
         ; check for border collision
         lda     head_y
         bpl     :+
@@ -166,10 +207,12 @@ check_collision:
 :
         jsr     _vdp_xy_to_screen_buf_ptr
         lda     (scr_ptr)
-        cmp     #$20            ; is a space, okay to draw
+        cmp     #$20
         beq     draw
-        cmp     #'#'            ; is it my tail
-        beq     exit
+        cmp     #$90                    ; is it an apple
+        bne     :+
+        jsr     eat_apple
+:       jmp     exit                    ; Hit tail
 draw:
         lda     scr_ptr
         ldy     #0
@@ -178,7 +221,7 @@ draw:
         ldy     #1
         sta     (head_ptr),y
 
-        lda     #'#'
+        lda     head_char
         sta     (scr_ptr)
         jsr     advance_head_pointer
 
@@ -189,7 +232,7 @@ draw:
         lda     (tail_ptr),y
         sta     scr_ptr + 1
 
-        lda     #' '
+        lda     #$20
         sta     (scr_ptr)
         lda     is_growing
         bne     :+
@@ -204,7 +247,25 @@ draw:
         stz     tick
         jmp     do_tick
 exit:
-        jsr     _vdp_init               ; reset graphics mode on exit
+        printxy game_over_1,3,5
+        printxy game_over_2,3,7
+        jsr     _vdp_wait
+        jsr     vdp_flush
+:
+        jsr     _con_in
+        bcc     :-
+        cmp     #$1b
+        beq     :+
+        cmp     #$20
+        bne     :-
+        jmp     new_game
+:
+        jmp     _vdp_init
+
+new_apple:
+        rts
+
+eat_apple:
         rts
 
 ; ------------------------------------------------------------------------------
@@ -218,7 +279,7 @@ advance_head_pointer:
         bne     :+
         inc     head_ptr+1
         lda     head_ptr+1
-        cmp     #>snake + 6
+        cmp     #>snake + $20
         bne     :+
         lda     #>snake
         sta     head_ptr+1
@@ -232,12 +293,25 @@ advance_tail_pointer:
         bne     :+
         inc     tail_ptr+1
         lda     tail_ptr+1
-        cmp     #>snake + 6
+        cmp     #>snake + $20
         bne     :+
         lda     #>snake
         sta     tail_ptr+1
 :
         rts
+
+; print text pointed to by str_ptr to screen at scr_ptr
+vdp_print:
+        ldy     #0
+:
+        lda     (str_ptr),y
+        beq     :+
+        sta     (scr_ptr),y
+        iny
+        jmp     :-
+:
+        rts
+
 ; copy screen buffer to vdp ram
 vdp_flush:
         lda     #<screen
@@ -261,7 +335,7 @@ vdp_flush:
 vdp_init_colours:
         ; first set up all colours the same
         vdp_set_write_address vdp_colorTable
-        ldx     #$04
+        ldx     #$09
         ldy     #$00
         jsr     _vdp_wait               ; wait to do this during vblank period
 :
@@ -282,10 +356,9 @@ vdp_init_patterns:
         sta     vdp_ptr
         lda     #>patterns_start
         sta     vdp_ptr + 1
-        ldy     #0
         jsr     _vdp_wait               ; wait to do this during vblank period
 :
-        lda     (vdp_ptr),y
+        lda     (vdp_ptr)
         sta     LVDP_RAM
         vdp_delay_fast
         lda     vdp_ptr
@@ -303,7 +376,7 @@ vdp_init_patterns:
         rts
 
 ; clear out all vdp ram
-vdp_clear_ram:                          
+vdp_clear_ram:
         lda     #0
         sta     LVDP_REG
         ora     #$40
@@ -328,7 +401,7 @@ vdp_clear_ram:
 ; set up graphics mode 2 for the game
 vdp_init_g2:
         ldx     #$00
-:       
+:
         lda     g2_registers_start,x
         sta     LVDP_REG
         vdp_delay_slow
@@ -342,7 +415,7 @@ vdp_init_g2:
         rts
 
 ; ------------------------------------------------------------------------------
-; DATA
+; GAME DATA
 ; ------------------------------------------------------------------------------
 
 g2_registers_start:
@@ -356,14 +429,28 @@ reg_6:  .byte $03        ; Address of Sprite Pattern Table in VRAM = 1800
 reg_7:  .byte $2b        ; white on black
 g2_registers_end:
 
+start_menu_1:   .asciiz "SNAKE - V1.0"
+start_menu_2:   .asciiz "BY - PRODUCTIONDAVE"
+start_menu_3:   .asciiz "PRESS ANY KEY TO PLAY"
+
+game_over_1:    .asciiz "GAME OVER"
+game_over_2:    .asciiz "SCORE:"
+
+; ------------------------------------------------------------------------------
+; GAME FONT
+; ------------------------------------------------------------------------------
 patterns_start:
-        .include "font.asm"
+        .include "chunky.asm"
 patterns_end:
 
+; ------------------------------------------------------------------------------
+; GAME VARIABLES
+; ------------------------------------------------------------------------------
 dir:            .byte 0         ; start game going right
 head_x:         .byte 0
 head_y:         .byte 0
 speed:          .byte 0
 is_growing:     .byte 0
-        .org    $6000           ; snake buffer must be on page boundary
-snake:          .res  $600      ; reserve 300 words of data for the snake buffer
+head_char:      .byte 0
+score:          .word 0
+high_score:     .word 0
