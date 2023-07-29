@@ -64,7 +64,7 @@ _vdp_clear_screen_buf:
         sta     scr_ptr+1
 
         ldx     #4
-        lda     #0
+        lda     #$20            ; fill with spaces not nulls.
         ldy     #0
 :       sta     (scr_ptr),y
         iny
