@@ -16,12 +16,14 @@
         .code
 cold_boot:
         sei
+        cld
         ldx #$ff
         txs
 
         jsr _con_init
         jsr _acia_init
         jsr _kbd_init
+        jsr _vdp_init
         cli
 menu:
         mac_con_print str_help
@@ -87,6 +89,7 @@ irq:
         pha
         phx
         phy
+        cld
 @vdp_irq:
         bit VDP_REG
         bpl @kbd_irq
