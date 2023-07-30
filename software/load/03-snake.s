@@ -415,24 +415,24 @@ advance_tail_pointer:                   ; this is just the same as what we did
 ; Print 1 byte BCD value
 ;------------------------------------------------------------------------------
 bcd_out:
-        pha
+        pha                             ; save a
         .repeat 4
-        lsr
+        lsr                             ; get the high nibble
         .endrepeat
-        ora     #'0'
-        sta     (scr_ptr)
+        ora     #'0'                    ; add ascii zero
+        sta     (scr_ptr)               ; save to buffer
 
-        inc     scr_ptr
+        inc     scr_ptr                 ; increment screen buff memmory address
         bne     :+
         inc     scr_ptr+1
 :
-        pla
+        pla                             ; restore a
 bcd_out_l:
-        and     #$0f
-        ora     #'0'
-        sta     (scr_ptr)
-        inc     scr_ptr
-        bne     :+
+        and     #$0f                    ; find the low nibble
+        ora     #'0'                    ; add ascii zero
+        sta     (scr_ptr)               ; save to buffer
+        inc     scr_ptr                 ; incremente screen buff memory pointer
+        bne     :+                      ; for the next call if there is one.
         inc     scr_ptr+1
 :
         rts
@@ -440,37 +440,38 @@ bcd_out_l:
 ; set a specific pattern to a colour given by x and a
 ; x = pattern name and a = colour
 vdp_set_pattern_colour:
-        pha
-        txa
-
-        sta     vdp_ptr
-        lda     #0
-        sta     vdp_ptr+1
+        pha                             ; save the colour
+        txa                             ; use the pattern address to find
+                                        ; the start of the pattern in the
+        sta     vdp_ptr                 ; colourTable.  Multiply by 8 to find
+        lda     #0                      ; start of address.  This routine is an
+        sta     vdp_ptr+1               ; 8bit x 8 multiply with result in 16bit
         
         asl     vdp_ptr
-        rol     vdp_ptr+1
+        rol     vdp_ptr+1               ; x2
         asl     vdp_ptr
-        rol     vdp_ptr+1
+        rol     vdp_ptr+1               ; x4
         asl     vdp_ptr
-        rol     vdp_ptr+1
+        rol     vdp_ptr+1               ; x8
         
-        clc
-        lda     #<vdp_colorTable
-        adc     vdp_ptr
+        clc                             ; now add to the start of the colorTable
+        lda     #<vdp_colorTable        ; add 2 16bit values together. Result
+        adc     vdp_ptr                 ; is in vdp_ptr and vdp_ptr+1
         sta     vdp_ptr
         lda     #>vdp_colorTable
         adc     vdp_ptr+1
         sta     vdp_ptr+1
 
-        lda     vdp_ptr
-        ldx     vdp_ptr+1
-        jsr     _vdp_set_write_address
-        pla
-        ldx     #8
-:
-        sta     LVDP_RAM
-        dex
-        bne     :-
+        lda     vdp_ptr                 ; load the start of the pattern color
+        ldx     vdp_ptr+1               ; into A/X and set vdp Write Address
+        jsr     _vdp_set_write_address  ; registers
+        
+        pla                             ; restore the colour from the stack
+        ldx     #8                      ; write the colour to the next 8 bytes
+:                                       ; of VDP VRAM
+        sta     LVDP_RAM                ; write to VRAM
+        dex                             ; decrement X
+        bne     :-                      ; keep going until X = 0
         rts
 
 ; print text pointed to by str_ptr to screen at scr_ptr
