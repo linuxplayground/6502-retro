@@ -120,7 +120,7 @@ EXIT:
 
 RUN:         
         JSR ACTRUN      ;* JSR to the Address we want to run.
-        JMP   SOFTRESET ;* When returned for the program, reset EWOZ.
+        JMP SOFTRESET   ;* When returned for the program, reset EWOZ.
 ACTRUN:      
         JMP (XAML)      ;Run at current XAM index.
 

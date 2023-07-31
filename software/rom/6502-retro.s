@@ -45,15 +45,15 @@ inkey:
         beq run_basic
         cmp #'w'
         beq run_warm_boot
+        cmp #'c'
+        beq run_cls
         cmp #$0a                        ; CR
         beq new_line
         jsr _con_out
         jmp prompt
         jmp wait_for_input
-
 run_warm_boot:
         jmp cold_boot
-
 run_xmodem:
         jsr _con_nl
         sei                             ; disable interrupts so xmodem can own the acia.
@@ -67,24 +67,22 @@ run_help:
         mac_con_print str_help
         jsr _con_prompt
         jmp wait_for_input
-
 run_wozmon:
         jsr _con_nl
         jsr _wozmon
         jmp menu
-
 run_program:
         jsr _con_nl
         jsr $1000
         jmp menu
-
+run_cls:
+        mac_con_print str_cls
+        jmp menu
 new_line:
         jsr _con_nl
         jmp prompt
-
 nmi:
         rti
-
 irq:
         pha
         phx
@@ -114,7 +112,6 @@ irq:
         ply
         plx
         pla
-
         rti
 
         .segment "VECTORS"
@@ -131,4 +128,6 @@ load_message: .byte "6502-Retro!", $0a, $0d
               .byte "Press 'x' to start xmodem receive ...", $0a, $0d
               .byte "Press 'r' to run your program ...", $0a, $0d
               .byte "Press 'b' to run basic ...", $0a, $0d
-              .byte "Press 'm' to start Wozmon ...", $0a, $0d, $00
+              .byte "Press 'm' to start Wozmon ...", $0a, $0d
+              .byte "Press 'c' to clear the screen ...",$0a, $0d, $00
+str_cls:      .byte $1b,"[H",$1b,"[2J",0

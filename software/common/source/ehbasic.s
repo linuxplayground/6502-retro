@@ -8569,7 +8569,7 @@ LAB_LMSG:    .asciiz " in line "
 LAB_RMSG:    .byte $0D,$0A,"Ready",$0D,$0A,$00
 LAB_IMSG:    .byte " Extra ignored",$0D,$0A,$00
 LAB_REDO:    .byte " Redo from start",$0D,$0A,$00
-LAB_CLS_STRING: .byte $1b,"[2J",$00         ; VT100 escape string to clear screen on uart.
+LAB_CLS_STRING: .byte $1b,"[H",$1b,"[2J",$00   ; VT100 escape string to clear screen on uart.
 
 AA_end_basic:
 
