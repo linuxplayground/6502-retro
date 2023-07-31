@@ -1,5 +1,5 @@
 #include "xmodem.h"
-#include "tty.h"
+#include "conio.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -7,19 +7,18 @@
 #define PROGRAM_RAM 0x1000
 
 unsigned char c;
-char line[MAX_CHARS];
 
 void greet() {
-        tty_cls();
-        tty_newline();
-        acia_puts("6502-Retro!");
-        tty_newline();
-        acia_puts("[x] load a program with Xmodem");
-        tty_newline();
-        acia_puts("[r] to run program");
-        tty_newline();
+        con_nl();
+        con_nl();
+        con_puts("6502-Retro!");
+        con_nl();
+        con_puts("[x] load a program with Xmodem");
+        con_nl();
+        con_puts("[r] to run program");
+        con_nl();
+        con_prompt();
 }
-
 
 void handler_run()
 {
@@ -28,30 +27,36 @@ void handler_run()
 
 
 void main(void) {
-        acia_init();
-        
+       
         greet();
 
         while (1) {
-                acia_putc('>');
-                c = acia_getc();
-                switch(c) {
-                        case 0x1b:
-                                greet();
-                                break;
-                        case (char)'x':
-                                xmodem();
-                                greet();
-                                break;
-                        case (char)'r':
-                                handler_run();
-                                greet();
-                                break;
-                        default:
-                                acia_putc(c);
-                                acia_putc('\\');
-                                tty_newline();
+                c = con_getc();
+                if (c > 0) {
+                        switch(c) {
+                                case 0x1b:
+                                case (char)'h':
+                                        greet();
+                                        break;
+                                case (char)'x':
+                                        __asm__("sei");
+                                        xmodem();
+                                        __asm__("cli");
+                                        greet();
+                                        break;
+                                case (char)'r':
+                                        handler_run();
+                                        greet();
+                                        break;
+                                case (char)'c':
+                                        con_cls();
+                                        con_prompt();
+                                        break;
+                                default:
+                                        con_putc(c);
+                                        con_prompt();
+                                        con_nl();
+                        }
                 }
-                
         }
 }

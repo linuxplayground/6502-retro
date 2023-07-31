@@ -1,12 +1,14 @@
 #include <stdlib.h>
-#include "tty.h"
+#include <stdio.h>
+#include <stdint.h>
 
-unsigned char c;
+#include "conio.h"
+#include "io.h"
+
+uint8_t c;
 int main() {
-        tty_cls();
-        acia_puts("Hello, World! from demo");
-        tty_newline();
-        acia_puts("Press a key...");
-        c = acia_getc();
+        con_cls();
+        con_puts("Hello, World! from demo");
+        con_nl();
         return 0;
 }

@@ -30,3 +30,8 @@
         .globalzp MODE 
         .globalzp MSGL 
         .globalzp MSGH 
+        ; keyboard and console
+        .globalzp con_r_idx
+        .globalzp con_w_idx 
+        .globalzp kbd_flags
+        .globalzp kbd_scankey

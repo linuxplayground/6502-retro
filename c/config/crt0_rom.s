@@ -1,4 +1,5 @@
             .include "zeropage.inc"
+            .include "acia.inc"
             .include "interrupt.inc"
 
             .export __STARTUP__ : absolute = 1
@@ -36,6 +37,7 @@ _init:      sei
             jsr copydata
             jsr initlib
 
+            jsr _acia_init
             jsr _irq_init
             cli
 

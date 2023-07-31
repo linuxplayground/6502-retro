@@ -33,3 +33,8 @@ YSAV:           .res 1
 MODE:           .res 1
 MSGL:           .res 1
 MSGH:           .res 1
+; keyboard + console
+con_r_idx:      .res 1
+con_w_idx:      .res 1
+kbd_flags:      .res 1
+kbd_scankey:    .res 1

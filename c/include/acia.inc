@@ -5,3 +5,4 @@
         .import _acia_gets
 
         .import acia_read_byte_nw
+        .import ACIA_STATUS

@@ -1,49 +1,59 @@
-CC = cl65
-CA = ca65
-AR = ar65
-
 # ASSEMBLY
-LIB_SOURCES = zeropage.s acia.s interrupt.s xmodem.s
+ASM_LIB_SOURCES = 	zeropage.s \
+                  	acia.s \
+	          	interrupt.s \
+	          	xmodem.s \
+	          	kbd.s \
+	          	utils.s \
+	          	via.s \
+	          	sysram.s \
+	          	conio.s
 
-%.o: lib/%.s
-	ca65 -I include --cpu 65c02 -o build/$@ -l build/$(@:.o=.lst) $<
+C_LIB_SOURCES   =     	tms.c
 
-LIB_OBJECTS = $(LIB_SOURCES:%.s=build/%.o)
+C_SOURCES       =       main.c
+LOAD_C_SOURCES  =       tms_demo.c \
+			demo.c
 
-# C
-C_FW_SOURCES = tty.c main.c
-C_LD_SOURCES = demo.c
+ASM_LIB_OBJECTS =	$(ASM_LIB_SOURCES:%.s=%.o)
+C_LIB_OBJECTS   =	$(C_LIB_SOURCES:%.c=%.o)
+C_OBJECTS       =       $(C_SOURCES:%.c=%.o)
+LOAD_C_OBJECTS  =       $(LOAD_C_SOURCES:%.c=%.o)
+LOAD_C_BINS     =       $(LOAD_C_SOURCES:%.c=%.bin)
 
-%.o: %.c
-	cc65 --cpu 65c02 -O -o build/$(@:.o=.s) -I headers $<
-	ca65 --cpu 65c02 -o build/$@ -l build/$(@:.o=.lst) build/$(<:.c=.s)
+all: clean rom $(LOAD_C_BINS)
 
-C_FW_OBJECTS = $(C_FW_SOURCES:%.c=build/%.o)
-C_LD_OBJECTS = $(C_LD_SOURCES:%.c=build/%.o)
+$(ASM_LIB_OBJECTS):
+	ca65 --cpu 65c02 -I include -o $(@:%.o=build/%.o) -l $(@:%.o=build/%.lst) $(@:%.o=lib/%.s)
 
-# 
-all: clean rom_lib firmware ram_lib demo.bin
+$(C_LIB_OBJECTS):
+	cc65 --cpu 65c02 -I headers -O -t none -o $(@:%.o=build/%.s) $(@:%.o=lib/%.c)
+	ca65 --cpu 65c02 -o $(@:%.o=build/%.o) -l $(@:%.o=build/%.lst) $(@:%.o=build/%.s)
 
-# Standard libraries
-rom_lib: $(LIB_SOURCES:.s=.o)
+$(C_OBJECTS):
+	cc65 --cpu 65c02 -I headers -O -t none -o $(@:%.o=build/%.s) $(@:%.o=%.c)
+	ca65 --cpu 65c02 -o $(@:%.o=build/%.o) -l $(@:%.o=build/%.lst) $(@:%.o=build/%.s)
+
+$(LOAD_C_OBJECTS):
+	cc65 --cpu 65c02 -I headers -O -t none -o $(@:%.o=build/%.s) $(@:%.o=%.c)
+	ca65 --cpu 65c02 -o $(@:%.o=build/%.o) -l $(@:%.o=build/%.lst) $(@:%.o=build/%.s)
+
+rom_lib:$(ASM_LIB_OBJECTS) $(C_LIB_OBJECTS)
 	cp none.lib build/rom.lib
-	$(CA) -t none --cpu 65c02 -I include -o build/crt0.o config/crt0_rom.s
-	$(AR) a build/rom.lib build/crt0.o $(LIB_OBJECTS)
+	ca65 -t none --cpu 65c02 -I include -o build/crt0.o config/crt0_rom.s
+	ar65 a build/rom.lib build/crt0.o $(ASM_LIB_OBJECTS:%.o=build/%.o) $(C_LIB_OBJECTS:%.o=build/%.o)
 
-ram_lib:
+ram_lib:$(ASM_LIB_OBJECTS) $(C_LIB_OBJECTS)
 	cp none.lib build/ram.lib
-	$(CA) -t none --cpu 65c02 -I include -o build/crt0.o config/crt0_ram.s
-	$(AR) a build/ram.lib build/crt0.o $(LIB_OBJECTS)
-	
-firmware: $(C_FW_SOURCES:.c=.o)
-	cl65 -C config/rom.cfg -m build/retro_firmware.map -o build/retro_firmware.bin $(C_FW_OBJECTS) build/rom.lib
+	ca65 -t none --cpu 65c02 -I include -o build/crt0.o config/crt0_ram.s
+	ar65 a build/ram.lib build/crt0.o $(ASM_LIB_OBJECTS:%.o=build/%.o) $(C_LIB_OBJECTS:%.o=build/%.o)
 
-demo.raw: $(C_LD_SOURCES:.c=.o)
-	cl65 -C config/ram.cfg -m build/$^.map -o build/$@ build/tty.o $(C_LD_OBJECTS) build/ram.lib
-	
-demo.bin: demo.raw
-	python3 loadtrim.py build/$^ build/$@
+rom: rom_lib $(C_OBJECTS)
+	cl65 -C config/rom.cfg -m build/rom.map -o dist/rom.bin $(C_OBJECTS:%.o=build/%.o) build/rom.lib
 
-# CLEAN
+$(LOAD_C_BINS): ram_lib $(LOAD_C_OBJECTS)
+	cl65 -C config/ram.cfg -m $(@:%.bin=build/%.map) -o $(@:%.bin=build/%.raw) $(@:%.bin=build/%.o) build/ram.lib
+	python3 loadtrim.py $(@:%.bin=build/%.raw) dist/$@
 clean:
 	rm -f build/*
+	rm -f dist/*
