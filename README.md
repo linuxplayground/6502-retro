@@ -21,6 +21,13 @@ board in [hardware/6502-retro](./hardware/6502-retro/).
 
 This project contains two expansion boards.
 
+### NOTE !!
+
+One of the expansion slots (J1) is too close to the BAUD RATE Oscilator on the 
+base board.  It can be used for manual jumper wires maybe, but I would not risk
+putting a card in there as the solder joints on the back of the card will short
+against the metal oscilator can for the baud rate clock.
+
 ### F18A (TMS9918A FPGA)
 
 The F18A from [dnotq](https://dnotq.io/f18a/intro.html) is mounted with some
