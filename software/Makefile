@@ -1,112 +1,51 @@
-CA65_BINARY=ca65
-CA65_FLAGS=--cpu 65c02 -t none
-LD65_BINARY=ld65
-LD65_FLAGS=
-AR65_BINARY=ar65
-AR65_FLAGS= r
-MKDIR_BINARY=mkdir
-MKDIR_FLAGS=-v -p
+common_lib_sources = crt0.s \
+		sysram.s \
+		zeropage.s
+common_lib_objects = $(common_lib_sources:%.s=%.o)
+lib         =   build/lib/os.lib
 
-FIRMWARE= firmware.cfg
+lib_sources =   kernal.s \
+		acia.s \
+		conio.s \
+		ehbasic.s \
+		kbd.s \
+		utils.s \
+		vdp.s \
+		via.s \
+		wozmon.s \
+		xmodem.s \
 
-BUILD= build
+lib_objects =   $(lib_sources:%.s=%.o)
 
-# COMMON STUFF
-COMMON_ROOT= common
-COMMON_SOURCES= $(COMMON_ROOT)/source
-COMMON_INCLUDES= $(COMMON_ROOT)/include
-COMMON_RES= $(COMMON_ROOT)/res
-COMMON_BUILD= $(BUILD)/common
-COMMON_SOURCE_FILES= zeropage.s \
-			sysram.s \
-			syscalls.s \
-			acia.s \
-			ehbasic.s \
-			kbd.s \
-			console.s \
-			utils.s \
-			via.s \
-			vdp.s \
-			wozmon.s \
-			xmodem.s
-COMMON_OBJECTS=$(COMMON_SOURCE_FILES:%.s=$(COMMON_BUILD)/%.o)
-COMMON_LIB=$(COMMON_BUILD)/common.lib
+rom_sources = 	01-test.s \
+		02-wozmon.s \
+		03-kbd.s \
+		04-vdp.s
+rom_objects = 	$(rom_sources:%.s=%.o)
+rom_bins    =   $(rom_sources:%.s=%.bin)
 
-# ROM STUFF
-ROM_ROOT=rom
-ROM_BUILD=$(BUILD)/rom
-ROM_SOURCES=$(ROM_ROOT)
-ROM_SOURCE_FILES=6502-retro.s
-ROM_OBJECTS=$(ROM_SOURCE_FILES:%.s=$(ROM_BUILD)/%.o)
-ROM_BINARIES=$(ROM_SOURCE_FILES:%.s=$(ROM_BUILD)/%.bin)
+all: clean $(lib) $(rom_bins)
 
-# LOAD STUFF
-LOAD_ROOT=load
-LOAD_BUILD=$(BUILD)/load
+make_dirs:
+	mkdir -pv build/lib
+	mkdir -pv build/rom
 
-LOAD_COMMON_SOURCE_FILES=	syscalls.s \
-				loadlib.s \
-				sysram.s
-LOAD_COMMON_OBJECTS=$(LOAD_COMMON_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.load.o)
+$(common_lib_objects): make_dirs
+	ca65 --cpu 65c02 -l $(@:%.o=build/lib/%.lst) -I inc -o $(@:%.o=build/lib/%.o) $(@:%.o=lib/%.s)
 
-LOAD_COMMON_LIB=$(LOAD_BUILD)/load.lib
+$(lib_objects): make_dirs
+	ca65 --cpu 65c02 -l $(@:%.o=build/lib/%.lst) -I inc -o $(@:%.o=build/lib/%.o) $(@:%.o=lib/%.s)
 
-LOAD_SOURCES=$(LOAD_ROOT)
-LOAD_SOURCE_FILES=		01-vdp-test.s \
-				02-vdp-ball.s \
-				03-snake.s
-LOAD_OBJECTS=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.o)
-LOAD_RAW=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.raw)
-LOAD_BINARIES=$(LOAD_SOURCE_FILES:%.s=$(LOAD_BUILD)/%.bin)
+$(rom_objects): $(lib_objects)
+	mkdir -pv build/rom
+	ca65 --cpu 65c02 -l $(@:%.o=build/rom/%.lst) -I inc -o $(@:%.o=build/rom/%.o) $(@:%.o=rom/%.s)
 
-SYSTEM_MEMORY_MAP_OBJECT=$(COMMON_BUILD)/zeropage.o
+$(lib): $(common_lib_objects)
+	cp -f cfg/none.lib build/lib/os.lib
+	ar65 a build/lib/os.lib $(^:%.o=build/lib/%.o)
 
-# Don't edit beyond this line.
+$(rom_bins): $(rom_objects)
+	ld65 -C cfg/rom.cfg -Ln $(@:%.bin=build/rom/%.lnk) -m $(@:%.bin=build/rom/%.map) -o $(@:%.bin=build/rom/%.bin) $(@:%.bin=build/rom/%.o) $(lib_objects:%.o=build/lib/%.o) $(common_lib_objects:%.o=build/lib/%.o) $(lib)
 
-phony: all
 clean:
-	rm -frv $(BUILD)/*
-
-all: $(COMMON_LIB) $(ROM_BINARIES) $(LOAD_BINARIES)
-	@echo "Building everything."
-
-# all the fancy makefile stuff here.
-# Build the common libraries
-$(COMMON_BUILD)/%.o: $(COMMON_SOURCES)/%.s
-	@$(MKDIR_BINARY) $(MKDIR_FLAGS) $(COMMON_BUILD)
-	$(CA65_BINARY) $(CA65_FLAGS) -I $(COMMON_INCLUDES) -I $(COMMON_RES) -l $(@:.o=.lst) -o $(@:.s=.o) $^
-
-# pack up the common library
-$(COMMON_BUILD)/common.lib: $(COMMON_OBJECTS)
-	$(AR65_BINARY) $(AR65_FLAGS) $(COMMON_LIB) $^
-
-# Build the roms
-$(ROM_BUILD)/%.o: $(ROM_SOURCES)/%.s
-	@$(MKDIR_BINARY) $(MKDIR_FLAGS) $(ROM_BUILD)
-	$(CA65_BINARY) $(CA65_FLAGS) -I $(COMMON_INCLUDES) -I $(COMMON_RES) -l $(@:.o=.lst)  -o $(@:.s=.o) $^
-
-# Link the roms
-$(ROM_BUILD)/%.bin: $(SYSTEM_MEMORY_MAP_OBJECT) $(ROM_OBJECTS) $(COMMON_LIB)
-	$(LD65_BINARY) $(LD65_FLAGS) -C $(FIRMWARE) -m $(@:.bin=.map)  -o $@ $(@:.bin=.o) $(COMMON_LIB)
-
-# Build the common load library
-$(LOAD_BUILD)/%.load.o: $(COMMON_SOURCES)/%.s
-	@$(MKDIR_BINARY) $(MKDIR_FLAGS) $(LOAD_BUILD)
-	$(CA65_BINARY) $(CA65_FLAGS) -I $(COMMON_INCLUDES) -I $(COMMON_RES) -l $(@:.o=.lst) -o $(@:.s=.load.o) $^
-
-# pack up the common load library
-$(LOAD_BUILD)/load.lib: $(LOAD_COMMON_OBJECTS)
-	$(AR65_BINARY) $(AR65_FLAGS) $(LOAD_COMMON_LIB) $^
-
-# Build the loadables
-$(LOAD_BUILD)/%.o: $(LOAD_SOURCES)/%.s
-	@$(MKDIR_BINARY) $(MKDIR_FLAGS) $(LOAD_BUILD)
-	$(CA65_BINARY) $(CA65_FLAGS) -I $(COMMON_INCLUDES) -I $(COMMON_RES) -l $(@:.o=.lst)  -o $(@:.s=.o) $^
-
-# Link the loadables
-$(LOAD_BUILD)/%.raw: $(SYSTEM_MEMORY_MAP_OBJECT) $(LOAD_OBJECTS) $(LOAD_COMMON_LIB)
-	$(LD65_BINARY) $(LD65_FLAGS) -C firmware.load.cfg -m $(@:.raw=.map)  -o $@ $(@:.raw=.o) $(SYSTEM_MEMORY_MAP_OBJECT) $(LOAD_COMMON_LIB)
-
-# prune the loadables
-$(LOAD_BUILD)/%.bin: $(LOAD_BUILD)/%.raw
-	python3 loadtrim.py $^ $@
+	rm -fr build

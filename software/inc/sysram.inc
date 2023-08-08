@@ -1,0 +1,10 @@
+.global con_buf
+.global screen_buf
+.global wozmon_buf
+.global vdp_status
+.global vdp_sync
+.global vdp_con_mode
+.global vdp_con_width
+.global scrx
+.global scry
+.global tick
