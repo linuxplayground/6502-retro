@@ -8,4 +8,4 @@ all: clean 02-test-c.bin
 	ld65 -C $(TOP)/../cfg/ram.cfg -m main.map -o main.raw main.o kernal.o $(TOP)/../build/lib/os.lib
 	python3 $(TOP)/../loadtrim.py main.raw $@
 clean:
-	rm -f *.o *.lst *.map *.raw *.bin
+	rm -f *.o *.lst *.map *.raw *.bin *.s

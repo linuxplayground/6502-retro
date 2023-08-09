@@ -10,4 +10,4 @@ all: clean 05-snake.bin
 	
 	python3 $(TOP)/../loadtrim.py main.raw $@
 clean:
-	rm -f *.o *.lst *.map *.raw *.bin
+	rm -f *.o *.lst *.map *.raw *.bin *.s
