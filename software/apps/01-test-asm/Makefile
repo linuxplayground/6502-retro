@@ -1,4 +1,5 @@
 TOP = ..
+
 all: clean 01-test-asm.bin
 
 01-test-asm.bin:
