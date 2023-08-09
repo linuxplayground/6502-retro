@@ -89,15 +89,15 @@ void new_apple() {
 }
 
 uint8_t menu(void) {
-        print_center_y(3, "SNAKE 6502 - V1.0\0");
-        print_center_y(5, "BY PRODUCTION-DAVE\0");
-        print_center_y(13,"PRESS ANY KEY TO PLAY\0");
+        print_center_y(3, "SNAKE 6502 - V1.0");
+        print_center_y(5, "BY PRODUCTION-DAVE");
+        print_center_y(13,"PRESS ANY KEY TO PLAY");
 
-        sprintf(tb, "SCORE: %d\0", score);
+        sprintf(tb, "SCORE: %d", score);
         print_center_y(7, tb);
 
         if (crashed == true) {
-                print_center_y(23, "CRASHED\0");
+                print_center_y(23, "CRASHED");
         }
 
         vdp_wait();
@@ -140,7 +140,7 @@ void run(void) {
 
                         if (c == 0x1b) {
                                 crashed = true;
-                                cputs("ESCAPE PRESSED\0");
+                                cputs("ESCAPE PRESSED");
                         } else if (c == 0xA1) {
                                 if (head.dir != head_rt) head.dir = head_lt;
                         } else if (c == 0xA2) {
@@ -165,11 +165,11 @@ void run(void) {
 
                         if ( head.x < 0 || head.x > 31 ) {
                                 crashed = true;
-                                cputs("X Boundary\n\0");
+                                cputs("X Boundary\n");
                         }
                         if ( head.y < 0 || head.y > 23 ) {
                                 crashed = true;
-                                cputs("Y Boundary\n\0");
+                                cputs("Y Boundary\n");
                         }
 
                         r = vdp_read_from_screen_xy(head.x, head.y);
@@ -178,7 +178,7 @@ void run(void) {
                                 new_apple();
                         } else if (r != 0x20) {
                                 crashed = true;
-                                cputs("HIT TAIL\n\0");
+                                cputs("HIT TAIL\n");
                         }
                         if (crashed == false) {
                                 vdp_write_to_screen_xy(head.x, head.y, head.dir);
@@ -212,7 +212,7 @@ void run(void) {
 
 void main(void) {
         init_game();
-        sprintf(tb, "Free memory: %d\n\0", _heapmemavail());
+        sprintf(tb, "Free memory: %d\n", _heapmemavail());
         cputs(tb);
         while(1) {
                 if( !menu() ) {
