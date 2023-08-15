@@ -15,6 +15,7 @@
 .import _vdp_flush
 .import _vdp_write_to_screen_xy
 .import _vdp_read_from_screen_xy
+.import _vdp_clear_screen_buf
 
 .import vdp_write_to_screen_xy
 .import vdp_read_from_screen_xy

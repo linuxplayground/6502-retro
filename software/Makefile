@@ -17,10 +17,7 @@ lib_sources =   kernal.s \
 
 lib_objects =   $(lib_sources:%.s=%.o)
 
-rom_sources = 	01-test.s \
-		02-wozmon.s \
-		03-kbd.s \
-		04-vdp.s
+rom_sources = 	6502-retro-rom.s
 rom_objects = 	$(rom_sources:%.s=%.o)
 rom_bins    =   $(rom_sources:%.s=%.bin)
 

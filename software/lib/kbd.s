@@ -69,13 +69,15 @@ _kbd_isr:
         lda     kbd_flags           ; flip the releasing bit
         eor     #(KBD_R_FLAG)
         sta     kbd_flags
-        readkey                 ; read the value that's being released
+        readkey                     ; read the value that's being released
         cmp     #$12                ; left shift up
         beq     @shift_up
         cmp     #$59                ; right shift up
         beq     @shift_up
         cmp     #$58                ; CAPSLOCK
         beq     @capslock_up
+        cmp     #$14
+        beq     @ctrl_up
         jmp     @exit
 
 @capslock_up:
@@ -88,6 +90,11 @@ _kbd_isr:
         eor     #(KBD_S_FLAG)       ; flip the shift bit
         sta     kbd_flags
         jmp     @exit
+@ctrl_up:
+        lda     kbd_flags
+        eor     #(KBD_C_FLAG)
+        sta     kbd_flags
+        jmp     @exit
 @read_key:
         readkey
         cmp     #$f0                ; if releasing a key
@@ -96,6 +103,8 @@ _kbd_isr:
         beq     @shift_down
         cmp     #$59                ; right shift
         beq     @shift_down
+        cmp     #$14                ; control key
+        beq     @ctrl_down
 
 @filter:
         cmp     #$E0
@@ -107,9 +116,14 @@ _kbd_isr:
         lda     kbd_flags
         and     #(KBD_S_FLAG)       ; check if shif it currently down
         bne     @shifted_key
+
         lda     kbd_flags
         and     #(KBD_CL_FLAG)      ; honor shift key before capslock
         bne     @capslock
+
+        lda     kbd_flags
+        and     #(KBD_C_FLAG)
+        bne     @ctrl_key
 
 @unshifted_key:
         lda     keymap_l,x          ; fetch ascii from keymap lowercase
@@ -124,6 +138,12 @@ _kbd_isr:
         jmp     @push_key
 @shifted_key:
         lda     keymap_u,x          ; fetch ascii from keymap uppercase
+        jmp     @push_key
+@ctrl_key:
+        lda     keymap_l,x
+        cmp     #'c'
+        bne     @exit
+        lda     #$03
         ; fall through
 @push_key:
         ldx     con_w_idx           ; use the write pointer to save the ascii
@@ -139,6 +159,11 @@ _kbd_isr:
 @capslock_down:
         lda     kbd_flags
         ora     #(KBD_CL_FLAG)
+        sta     kbd_flags
+        jmp     @exit
+@ctrl_down:
+        lda     kbd_flags
+        ora     #(KBD_C_FLAG)
         sta     kbd_flags
         jmp     @exit
 @key_release:

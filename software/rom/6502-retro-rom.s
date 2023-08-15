@@ -2,15 +2,19 @@
 .include "sysram.inc"
 .include "acia.inc"
 .include "conio.inc"
+.include "ehbasic.inc"
 .include "kbd.inc"
+.include "vdp.inc"
 .include "via.inc"
 .include "wozmon.inc"
 .include "xmodem.inc"
 
 .import _init
 .import __RAM_START__
+.import __TMS_START__
 .export _main
 
+VDP_REG = __TMS_START__ + 1
 .macro print addr
         lda     #<addr
         ldx     #>addr
@@ -26,6 +30,8 @@ _main:
 
         jsr     _acia_init
         jsr     _kbd_init
+        jsr     _vdp_init
+        
         stz     con_w_idx
         stz     con_r_idx
         cli
@@ -41,8 +47,10 @@ loop:
         beq     run_xmodem
         cmp     #'r'
         beq     run_prog
-        cmp     #'w'
+        cmp     #'m'
         beq     run_wozmon
+        cmp     #'b'
+        beq     run_basic
         cmp     #'h'
         beq     run_help
         print error
@@ -64,10 +72,15 @@ run_wozmon:
         print nl
         jsr     _wozmon
         jmp     loop
+run_basic:
+        print nl
+        jmp     BASIC_init
 run_help:
         print nl
+        print banner
         print help
         jmp     loop
+
 
 
 nmi_handler:
@@ -78,14 +91,13 @@ irq_handler:
         phx
         phy
         cld
-; @vdp_irq:
-;         bit VDP_REG
-;         bpl @kbd_irq
-;         lda VDP_REG
-;         sta vdp_status
-;         lda #$80
-;         sta vdp_sync
-;         ; bra @exit_irq
+@vdp_irq:
+        bit     VDP_REG
+        bpl     @kbd_irq
+        lda     VDP_REG
+        sta     _vdp_status
+        lda     #$80
+        sta     _vdp_sync
 @kbd_irq:
         bit     VIA_IFR
         bpl     @acia_irq
@@ -104,13 +116,22 @@ irq_handler:
         rti
 
 .rodata
-banner: .byte $0d, "6502-Retro", $0a, $0d, $0
-help:   .byte "x-load", $0a, $0d
-        .byte "r-run", $0a, $0d
-        .byte "w-monitor", $0a, $0d
-        .byte "h-help", $0a, $0d, $0
-prompt: .byte $0a, $0d, "> ", $0
-error:  .byte "error",$0a, $0d, $0
+banner: .byte $0a,$0d
+        .byte "+========================+",$0a, $0d
+        .byte "|       6502-Retro       |",$0a, $0d
+        .byte "+========================+",$0a, $0d
+        .byte $00
+
+help:   .byte "| x-load                 |", $0a, $0d
+        .byte "| r-run                  |", $0a, $0d
+        .byte "| m-monitor              |", $0a, $0d
+        .byte "| b-basic                |", $0a, $0d
+        .byte "| h-help                 |", $0a, $0d
+        .byte "+========================+", $0a, $0d
+        .byte $00
+
+prompt: .byte $0a, $0d, ">  ", $0
+error:  .byte $0a, $0d, " \\", $0a, $0d, $0
 nl:     .byte $0a, $0d, $0
 
 .segment "VECTORS"

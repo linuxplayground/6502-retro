@@ -13,6 +13,7 @@
 .export _vdp_flush
 .export _vdp_write_to_screen_xy
 .export _vdp_read_from_screen_xy
+.export _vdp_clear_screen_buf
 
 ; ASM only exports
 .export vdp_write_to_screen_xy
@@ -57,9 +58,9 @@ _vdp_init:
         
         stz     scrx
         stz     scry
-        stz     vdp_con_mode
+        stz     _vdp_con_mode
         lda     #40
-        sta     vdp_con_width
+        sta     _vdp_con_width
         
         rts
 
@@ -78,9 +79,9 @@ _vdp_init_g2:
         stz     scrx
         stz     scry
         lda     #1
-        sta     vdp_con_mode
+        sta     _vdp_con_mode
         lda     #32
-        sta     vdp_con_width
+        sta     _vdp_con_width
         
         rts
         
@@ -154,9 +155,9 @@ vdp_load_font:
         rts
 
 _vdp_clear_screen_buf:
-        lda     #<screen_buf
+        lda     #<_screen_buf
         sta     ptr1
-        lda     #>screen_buf
+        lda     #>_screen_buf
         sta     ptr1+1
 
         ldx     #4
@@ -191,14 +192,14 @@ _vdp_set_read_address:
         rts
 
 _vdp_wait:
-        lda     vdp_sync
+        lda     _vdp_sync
         cmp     #$80
         bne     _vdp_wait
-        stz     vdp_sync
+        stz     _vdp_sync
         rts
 
 _vdp_flush:
-        lda     vdp_con_mode
+        lda     _vdp_con_mode
         bne     :+
         lda     #<VDP_NAME_TABLE
         ldx     #>VDP_NAME_TABLE
@@ -208,9 +209,9 @@ _vdp_flush:
         ldx     #>VDP_G2_NAME_TABLE
 :
         jsr     _vdp_set_write_address
-        lda     #<screen_buf
+        lda     #<_screen_buf
         sta     ptr1
-        lda     #>screen_buf
+        lda     #>_screen_buf
         sta     ptr1+1
         
         ldx     #4
@@ -230,9 +231,9 @@ _vdp_flush:
 ; XY location to write to
 vdp_xy_to_screen_ptr:
         pha
-        lda     #<screen_buf
+        lda     #<_screen_buf
         sta     scr_ptr
-        lda     #>screen_buf
+        lda     #>_screen_buf
         sta     scr_ptr+1
 
         tya
@@ -244,7 +245,7 @@ vdp_xy_to_screen_ptr:
         and      #$07
         mul32
         sta     scr_ptr
-        lda     vdp_con_mode
+        lda     _vdp_con_mode
         bne     @add_x
         tya
         mul8

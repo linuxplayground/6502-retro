@@ -25,5 +25,6 @@
         .word _vdp_flush
         .word _vdp_write_to_screen_xy
         .word _vdp_read_from_screen_xy
+        .word _vdp_clear_screen_buf
         .word vdp_write_to_screen_xy
         .word vdp_read_from_screen_xy

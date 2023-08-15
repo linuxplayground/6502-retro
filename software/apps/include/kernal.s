@@ -18,9 +18,21 @@
 .export _vdp_flush
 .export _vdp_write_to_screen_xy
 .export _vdp_read_from_screen_xy
+.export _vdp_clear_screen_buf
 
 .export vdp_write_to_screen_xy
 .export vdp_read_from_screen_xy
+
+.export _via_portb
+.export _via_porta
+.export _via_ddrb
+.export _via_ddra
+
+.import __VIA_START__
+_via_portb = __VIA_START__ + $0
+_via_porta = __VIA_START__ + $1
+_via_ddrb  = __VIA_START__ + $2
+_via_ddra  = __VIA_START__ + $3
 
 .code
 _acia_init:               jmp ($FF00)
@@ -43,6 +55,7 @@ _vdp_wait:                jmp ($FF20)
 _vdp_flush:               jmp ($FF22)
 _vdp_write_to_screen_xy:  jmp ($FF24)
 _vdp_read_from_screen_xy: jmp ($FF26)
+_vdp_clear_screen_buf:    jmp ($FF28)
 
-vdp_write_to_screen_xy:   jmp ($FF28)
-vdp_read_from_screen_xy:  jmp ($FF2A)
+vdp_write_to_screen_xy:   jmp ($FF2A)
+vdp_read_from_screen_xy:  jmp ($FF2C)

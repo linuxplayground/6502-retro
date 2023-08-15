@@ -1,10 +1,11 @@
 .global con_buf
-.global screen_buf
+.global Rbuff
+.global _screen_buf
 .global wozmon_buf
-.global vdp_status
-.global vdp_sync
-.global vdp_con_mode
-.global vdp_con_width
+.global _vdp_status
+.global _vdp_sync
+.global _vdp_con_mode
+.global _vdp_con_width
 .global scrx
 .global scry
 .global tick
